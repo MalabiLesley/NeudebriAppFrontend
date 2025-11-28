@@ -1,106 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import { apiGet } from "../lib/api";
 
 export default function Home() {
-  const [backendData, setBackendData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<any>(null);
 
   useEffect(() => {
-    const API_URL =
-      process.env.NEXT_PUBLIC_API_URL ||
-      "https://neudebriappkenya.onrender.com";
-
-    fetch(API_URL)
-      .then((res) => res.json())
-      .then((data) => {
-        setBackendData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching backend:", err);
-        setLoading(false);
-      });
+    apiGet("/api/status").then(setStatus);
   }, []);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="text-center max-w-3xl p-8 bg-white rounded shadow">
-        {/* Logo */}
-        <div className="mb-6 flex justify-center">
-          <Image
-            src="/logo.png" // Add logo.png in /public
-            alt="Neudebri Logo"
-            width={120}
-            height={120}
-            className="rounded-full shadow"
-          />
-        </div>
+    <main className="min-h-screen flex flex-col items-center p-8 bg-gray-50">
+      <section className="max-w-3xl text-center space-y-6">
+        <h1 className="text-5xl font-bold text-blue-700">Nuedebri Health App Kenya</h1>
 
-        {/* Title */}
-        <h1 className="text-4xl font-bold text-blue-600 mb-4">
-          Nuedebri Health App Kenya
-        </h1>
-        <p className="text-lg text-gray-700 mb-6">
-          A health monitoring system for patients, doctors, and administrators.
+        <p className="text-gray-700 text-lg">
+          Modern healthcare system for patients, doctors and administrators.
         </p>
 
-        {/* Backend Connection */}
-        {loading && <p className="text-gray-500">Connecting to backend...</p>}
-        {!loading && backendData && (
-          <div className="text-left bg-gray-50 p-4 rounded mb-6">
-            <p><strong>Message:</strong> {backendData.message}</p>
-            <p><strong>Version:</strong> {backendData.version}</p>
-            <p><strong>Environment:</strong> {backendData.environment}</p>
-          </div>
-        )}
-        {!loading && !backendData && (
-          <p className="text-red-600">Failed to connect to backend.</p>
-        )}
+        {/* Backend Status */}
+        <div className="p-6 bg-white shadow-lg rounded-xl border">
+          <h2 className="text-xl font-semibold text-gray-800">Backend Status</h2>
 
-        {/* Profiles */}
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          Meet the Team
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="p-4 border rounded shadow-sm bg-gray-50">
-            <Image
-              src="/profile1.jpg" // Add profile1.jpg in /public
-              alt="Lesley Malabi"
-              width={80}
-              height={80}
-              className="rounded-full mb-3"
-            />
-            <h3 className="text-lg font-bold">Lesley Malabi</h3>
-            <p className="text-sm text-gray-600">Architect & Full‑Stack Developer</p>
-            <a
-              href="https://neuderi.com/profiles/lesley"
-              className="text-blue-600 text-sm mt-2 inline-block"
-            >
-              View Profile →
-            </a>
-          </div>
+          <p className="mt-2 text-gray-600">
+            {status ? status.message : "Connecting..."}
+          </p>
 
-          <div className="p-4 border rounded shadow-sm bg-gray-50">
-            <Image
-              src="/profile2.jpg" // Add profile2.jpg in /public
-              alt="Doctor Jane Doe"
-              width={80}
-              height={80}
-              className="rounded-full mb-3"
-            />
-            <h3 className="text-lg font-bold">Doctor Jane Doe</h3>
-            <p className="text-sm text-gray-600">Medical Advisor</p>
-            <a
-              href="https://neuderi.com/profiles/jane"
-              className="text-blue-600 text-sm mt-2 inline-block"
-            >
-              View Profile →
-            </a>
-          </div>
+          <p className="text-sm mt-1 text-gray-500">
+            Environment: {status?.environment || "Loading..."}
+          </p>
         </div>
-      </div>
+      </section>
     </main>
   );
 }
